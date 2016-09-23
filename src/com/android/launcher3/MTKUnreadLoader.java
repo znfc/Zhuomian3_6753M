@@ -20,6 +20,7 @@ import android.util.Xml;
 import android.view.View;
 
 //import com.android.internal.util.XmlUtils;
+import com.android.launcher3.config.ProviderConfig;
 import com.mediatek.launcher3.ext.LauncherLog;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -27,6 +28,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.security.Provider;
 import java.util.ArrayList;
 
 import static com.android.launcher3.AutoInstallsLayout.beginDocument;
@@ -89,16 +91,16 @@ public class MTKUnreadLoader extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, final Intent intent) {
         final String action = intent.getAction();
-        if ("com.mediatek.action.UNREAD_CHANGED".equals(action)) {
+        if (ProviderConfig.ACTION_UNREAD_CHANGED.equals(action)) {
             ComponentName componentName = (ComponentName) intent
-                    .getExtras().get("com.mediatek.action.UNREAD_CHANGED");
+                    .getExtras().get(ProviderConfig.EXTRA_UNREAD_COMPONENT);
             //Add BUG_ID:DWYQDSS-275 zhaopenglin 20160714(start)
             if(isGMms && componentName.equals(MmscomponentName)){
                 componentName = new ComponentName("com.google.android.apps.messaging",
                 "com.google.android.apps.messaging.ui.ConversationListActivity");
             }
             //Add BUG_ID:DWYQDSS-275 zhaopenglin 20160714(end)
-            final int unreadNum = intent.getIntExtra("com.mediatek.intent.extra.UNREAD_NUMBER", -1);
+            final int unreadNum = intent.getIntExtra(ProviderConfig.EXTRA_UNREAD_NUMBER, -1);
             if (LauncherLog.DEBUG) {
                 LauncherLog.d(TAG, "Receive unread broadcast: componentName = " + componentName
                         + ", unreadNum = " + unreadNum + ", mCallbacks = " + mCallbacks
