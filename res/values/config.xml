@@ -105,6 +105,7 @@
     <bool name="config_unreadSupport">true</bool>
     <bool name="is_enter_settings">true</bool><!--Add BUG_ID:DWYSLMA-34 zhaopenglin 20160413-->
     <bool name="support_calendar_icon">true</bool><!--Add BUG_ID:DWYSBM-79 zhaopenglin 20160602  -->
+    <bool name="is_rect_folder">true</bool><!-- Add by zhaopenglin for rect foldericon 20160816 -->
     <bool name="is_support_hideapps">true</bool><!--add by zhaopenglin for hide app DWYQLSSB-77 20160617-->
     <bool name="gmms_unreadSupport">false</bool><!--Add BUG_ID:DWYQDSS-275 zhaopenglin 20160714-->
     <bool name="is_rm_qsb">true</bool><!--Add zhaopenglin for rm Qsb 20160714-->

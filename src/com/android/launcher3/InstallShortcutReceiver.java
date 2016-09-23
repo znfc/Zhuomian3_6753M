@@ -147,11 +147,19 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
         }
 
         PendingInstallShortcutInfo info = new PendingInstallShortcutInfo(data, context);
-        if (info.launchIntent == null || info.label == null) {
+        if (info.launchIntent == null || info.label == null || info.user == null) {
             if (DBG) Log.e(TAG, "Invalid install shortcut intent");
             return;
         }
-
+        //add by zhaopenglin for hide allapp 20160816 start
+        //add 添加这个就是判断桌面上是否有快捷方式有的话就不添加了 start
+        ArrayList<ItemInfo> tmpInfos = LauncherAppState.getInstance().getModel()
+                .getItemInfoForComponentName(info.launchIntent.getComponent()
+                        ,info.user);
+        if(tmpInfos !=null && tmpInfos.isEmpty()) {
+            return;
+        }
+        ////add by zhaopenglin for hide allapp 20160816 end
         info = convertToLauncherActivityIfPossible(info);
         queuePendingShortcutInfo(info, context);
     }

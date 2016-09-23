@@ -292,7 +292,6 @@
     <string name="folder_name_Amazon">"Amazon"</string>
     <string name="folder_name_Download">"Download"</string>
     <!--add by zhaopenglin for hide app DWYQLSSB-77 20160617 start -->
-    <string name="app_name">MultiSelect</string>
     <string name="hide_apps">Hide Apps</string>
     <string name="display_apps">Display Apps</string>
     <string name="cancel">Cancel</string>

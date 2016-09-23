@@ -2329,7 +2329,10 @@ public class Launcher extends Activity
             mModel.stopLoader();
             app.setLauncher(null);
         }
-
+//        ///M. ALPS02126047, Check it's current call backs or not.
+//        if (mModel != null && mModel.isCurrentCallbacks(this)) {
+//            mModel.unbindItemInfosAndClearQueuedBindRunnables();
+//        }
         try {
             mAppWidgetHost.stopListening();
         } catch (NullPointerException ex) {

@@ -4,6 +4,12 @@
         launcher:unreadPackageName="com.truecaller"
         launcher:unreadClassName="com.truecaller.ui.TruecallerInit"
         launcher:unreadType="0"
+        launcher:unreadKey="com_truecaller_contacts_mtk_unread"
+     />
+    <shortcut
+        launcher:unreadPackageName="com.android.dialer"
+        launcher:unreadClassName="com.android.dialer.DialtactsActivity"
+        launcher:unreadType="0"
         launcher:unreadKey="com_android_contacts_mtk_unread"
      />
      <shortcut

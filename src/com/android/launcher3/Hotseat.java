@@ -22,8 +22,6 @@
 package com.android.launcher3;
 
 import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -93,6 +91,8 @@ public class Hotseat extends FrameLayout
     }
 
     public boolean isAllAppsButtonRank(int rank) {
+        //添加下边这个判断就是解决重启allapp按钮位置的icon被删除
+        if (LauncherAppState.isHideAllApps()) return false;//add by zhaopenglin for hide allapp 20160816
         return rank == mAllAppsButtonRank;
     }
 
@@ -116,6 +116,7 @@ public class Hotseat extends FrameLayout
     }
 
     void resetLayout() {
+        if (LauncherAppState.isHideAllApps()) return;//add by zhaopenglin for hide allapp 20160816
         mContent.removeAllViewsInLayout();
 
         // Add the Apps button

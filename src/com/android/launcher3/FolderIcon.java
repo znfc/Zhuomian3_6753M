@@ -70,7 +70,13 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     private StylusEventHelper mStylusEventHelper;
 
     // The number of icons to display in the
-    public static final int NUM_ITEMS_IN_PREVIEW = 3;
+
+    // Modify by zhaopenglin for rect foldericon 20160816(start)
+    //private static final int NUM_ITEMS_IN_PREVIEW = 3;
+    public static int NUM_ITEMS_IN_PREVIEW;
+    private static final int NUM_COLUMN_IN_PREVIEW = 2;
+    // Modify by zhaopenglin for rect foldericon 20160816(end)
+
     private static final int CONSUMPTION_ANIMATION_DURATION = 100;
     private static final int DROP_IN_ANIMATION_DURATION = 400;
     private static final int INITIAL_ITEM_ANIMATION_DURATION = 350;
@@ -117,7 +123,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     private float mMaxPerspectiveShift;
     boolean mAnimating = false;
     private Rect mOldBounds = new Rect();
-
+    private static boolean is_rect_folder ;//add by zhaopenglin for rect foldericon 20160816
     private float mSlop;
 
     private PreviewItemDrawingParams mParams = new PreviewItemDrawingParams(0, 0, 0, 0);
@@ -138,6 +144,14 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     private void init() {
+        //Add by zhaopenglin for rect foldericon 20160816 start
+        is_rect_folder=getResources().getBoolean(R.bool.is_rect_folder);
+        if(is_rect_folder){
+            NUM_ITEMS_IN_PREVIEW=4;
+        }else{
+            NUM_ITEMS_IN_PREVIEW=3;
+        }
+        //Add by zhaopenglin for rect foldericon 20160816 end
         mLongPressHelper = new CheckLongPressHelper(this);
         mStylusEventHelper = new StylusEventHelper(this);
         setAccessibilityDelegate(LauncherAppState.getInstance().getAccessibilityDelegate());
@@ -219,6 +233,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         public static int sPreviewSize = -1;
         public static int sPreviewPadding = -1;
 
+        public static int sAvailableIconSpace = -1;//Add by zhaopenglin for rect foldericon 20160816
         private ValueAnimator mAcceptAnimator;
         private ValueAnimator mNeutralAnimator;
 
@@ -237,6 +252,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
                 DeviceProfile grid = launcher.getDeviceProfile();
                 sPreviewSize = grid.folderIconSizePx;
                 sPreviewPadding = res.getDimensionPixelSize(R.dimen.folder_preview_padding);
+                sAvailableIconSpace = res.getDimensionPixelSize(R.dimen.folder_available_icon_space);//Add by zhaopenglin for rect foldericon 20160816
                 sSharedOuterRingDrawable = res.getDrawable(R.drawable.portal_ring_outer);
                 sSharedInnerRingDrawable = res.getDrawable(R.drawable.portal_ring_inner_nolip);
                 sSharedFolderLeaveBehind = res.getDrawable(R.drawable.portal_ring_rest);
@@ -581,20 +597,45 @@ public class FolderIcon extends FrameLayout implements FolderListener {
 
     private PreviewItemDrawingParams computePreviewItemDrawingParams(int index,
             PreviewItemDrawingParams params) {
-        index = NUM_ITEMS_IN_PREVIEW - index - 1;
-        float r = (index * 1.0f) / (NUM_ITEMS_IN_PREVIEW - 1);
-        float scale = (1 - PERSPECTIVE_SCALE_FACTOR * (1 - r));
+        //Modify by zhaopenglin for rect foldericon 20160816(start)
 
-        float offset = (1 - r) * mMaxPerspectiveShift;
-        float scaledSize = scale * mBaselineIconSize;
-        float scaleOffsetCorrection = (1 - scale) * mBaselineIconSize;
+        float transY;
+        float transX;
+        float totalScale;
+        final int overlayAlpha;
+        if(is_rect_folder){
+            float mAvailableSpaceInFolderIcon = FolderRingAnimator.sAvailableIconSpace;
+            float itemPadding = 2;
+            float scaledSize = (mAvailableSpaceInFolderIcon- itemPadding*NUM_COLUMN_IN_PREVIEW)/NUM_COLUMN_IN_PREVIEW;
+            float scale = scaledSize/mIntrinsicIconSize;
+            float leftMargin = (mAvailableSpaceInPreview-mAvailableSpaceInFolderIcon)/2;
+            Resources res = getResources();
+            int iconTopToFolderHeight = res.getDimensionPixelSize(R.dimen.folder_available_icon_height);
+            float topMarginY = (mAvailableSpaceInPreview-mAvailableSpaceInFolderIcon)/2 + iconTopToFolderHeight;
+            int column = index % NUM_COLUMN_IN_PREVIEW;
+            int row = index / NUM_COLUMN_IN_PREVIEW;
+            transX = leftMargin + scaledSize * column + itemPadding * column + 2;
+            transY = topMarginY + scaledSize * row + itemPadding * row -6;
+            totalScale = scale;
+            overlayAlpha = 0;
+        }else{
+            index = NUM_ITEMS_IN_PREVIEW - index - 1;
+            float r = (index * 1.0f) / (NUM_ITEMS_IN_PREVIEW - 1);
+            float scale = (1 - PERSPECTIVE_SCALE_FACTOR * (1 - r));
 
-        // We want to imagine our coordinates from the bottom left, growing up and to the
-        // right. This is natural for the x-axis, but for the y-axis, we have to invert things.
-        float transY = mAvailableSpaceInPreview - (offset + scaledSize + scaleOffsetCorrection) + getPaddingTop();
-        float transX = (mAvailableSpaceInPreview - scaledSize) / 2;
-        float totalScale = mBaselineIconScale * scale;
-        final int overlayAlpha = (int) (80 * (1 - r));
+            float offset = (1 - r) * mMaxPerspectiveShift;
+            float scaledSize = scale * mBaselineIconSize;
+            float scaleOffsetCorrection = (1 - scale) * mBaselineIconSize;
+
+            // We want to imagine our coordinates from the bottom left, growing up and to the
+            // right. This is natural for the x-axis, but for the y-axis, we have to invert things.
+            transY = mAvailableSpaceInPreview - (offset + scaledSize + scaleOffsetCorrection) + getPaddingTop() - 3;
+            transX = (mAvailableSpaceInPreview - scaledSize) / 2;
+            //transX = offset + scaleOffsetCorrection;
+            totalScale = mBaselineIconScale * scale;
+            overlayAlpha = (int) (80 * (1 - r));
+        }
+        //Modify by zhaopenglin for rect foldericon 20160816(end)
 
         if (params == null) {
             params = new PreviewItemDrawingParams(transX, transY, totalScale, overlayAlpha);

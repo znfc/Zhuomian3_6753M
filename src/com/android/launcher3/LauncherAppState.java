@@ -145,7 +145,11 @@ public class LauncherAppState {
         isHideAppsFeature = sContext.getResources().getBoolean(R.bool.is_support_hideapps);//add by zhaopenglin for hide app DWYQLSSB-77 20160617
 
     }
-
+    //add by zhaopenglin for hide allapp 20160816 start
+    public static boolean isHideAllApps() {
+        return true;
+    }
+    //add by zhaopenglin for hide allapp 20160816 end
     /**
      * Call from Application.onTerminate(), which is not guaranteed to ever be called.
      */
