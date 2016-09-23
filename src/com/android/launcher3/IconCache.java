@@ -66,6 +66,10 @@ import com.mediatek.launcher3.ext.LauncherLog;
 
 import android.graphics.drawable.BitmapDrawable;
 
+//modify by zhaopenglin for mask icon 20160816 start
+import java.util.ArrayList;
+import java.util.Arrays;
+//modify by zhaopenglin for mask icon 20160816 end
 /**
  * Cache of application icons.  Icons can be made from any thread.
  */
@@ -93,7 +97,11 @@ public class IconCache {
 
     private final HashMap<UserHandleCompat, Bitmap> mDefaultIcons = new HashMap<>();
     @Thunk final MainThreadExecutor mMainThreadExecutor = new MainThreadExecutor();
-
+    //add by zhaopenglin for mask icon 20160816 start
+    private final Bitmap bgBitmap;//背景框
+    private final Bitmap maskBitmap;//mask蒙版
+    private List<String> noNeedMaskicon = new ArrayList<String>();
+    //add by zhaopenglin for mask icon 20160816 end
     private final Context mContext;
     private final PackageManager mPackageManager;
     @Thunk final UserManagerCompat mUserManager;
@@ -140,8 +148,37 @@ public class IconCache {
         // automatically be loaded as ALPHA_8888.
         mLowResOptions.inPreferredConfig = Bitmap.Config.RGB_565;
         updateSystemStateString();
+        //add by zhaopenglin for mask icon 20160816 start
+        maskBitmap = getMaskBitmap();
+        bgBitmap =getBitmap();
+        noNeedMaskicon = Arrays.asList(mContext.getResources()
+                .getStringArray(R.array.no_need_maskicon));
+        //add by zhaopenglin for mask icon 20160816 end
         isDynamCalender = context.getResources().getBoolean(R.bool.support_calendar_icon);//Add BUG_ID:DWYSBM-79 zhaopenglin 20160602
     }
+
+    //add by zhaopenglin for mask icon 20160816 start
+    //获得mask
+    private Bitmap getMaskBitmap() {
+        if(maskBitmap == null || maskBitmap.isRecycled()){
+             return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.mask);
+        }else return null;
+    }
+    //获得背景框
+    private Bitmap getBitmap() {
+        if(bgBitmap == null || bgBitmap.isRecycled()){
+            return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.bgicon);
+        }else return null;
+    }
+    private boolean verifyAppNoNeedMask(String pakName){
+        if(noNeedMaskicon == null) return false;
+        if(noNeedMaskicon.contains(pakName)) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+    //add by zhaopenglin for mask icon 20160816 start
 
     private Drawable getFullResDefaultActivityIcon() {
         return getFullResIcon(Resources.getSystem(), android.R.mipmap.sym_def_app_icon);
@@ -404,7 +441,12 @@ public class IconCache {
             if(isDynamCalender && app.getComponentName().getPackageName().equals("com.android.calendar")){
                 entry.icon = Utilities.createCalendarIconBitmap(app.getBadgedIcon(mIconDpi), mContext);
             }else{
-                entry.icon = Utilities.createIconBitmap(app.getBadgedIcon(mIconDpi), mContext);
+                //modify by zhaopenglin for mask icon 20160816 start
+                //entry.icon = Utilities.createIconBitmap(app.getBadgedIcon(mIconDpi), mContext);
+                entry.icon = Utilities.createIconBitmapWithMask(
+                        app.getBadgedIcon(mIconDpi), maskBitmap, bgBitmap, mContext,
+                        verifyAppNoNeedMask(app.getApplicationInfo().packageName));
+                //modify by zhaopenglin for mask icon 20160816 end
             }
             //Modify BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
         }
@@ -580,7 +622,12 @@ public class IconCache {
             // Check the DB first.
             if (isCalenderInfo || !getEntryFromDB(cacheKey, entry, useLowResIcon)) {
                 if (info != null) {
-                    entry.icon = Utilities.createIconBitmap(info.getBadgedIcon(mIconDpi), mContext);
+                    //Modify by zhaopenglin for mask icon 20160816 start
+                    //entry.icon = Utilities.createIconBitmap(info.getBadgedIcon(mIconDpi), mContext);
+                    entry.icon = Utilities.createIconBitmapWithMask(
+                            info.getBadgedIcon(mIconDpi),maskBitmap,bgBitmap,mContext
+                            ,verifyAppNoNeedMask(info.getApplicationInfo().packageName));
+                    //Modify by zhaopenglin for mask icon 20160816 end
                     //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
                     if(isCalenderInfo && isDynamCalender) {
                         entry.icon = Utilities.createCalendarIconBitmap(info.getBadgedIcon(mIconDpi), mContext);
@@ -639,7 +686,13 @@ public class IconCache {
             entry.title = title;
         }
         if (icon != null) {
-            entry.icon = Utilities.createIconBitmap(icon, mContext);
+            //modify by zhaopenglin for mask icon 20160816 start
+            //entry.icon = Utilities.createIconBitmap(icon, mContext);
+            entry.icon = Utilities.createIconBitmapWithMask(
+                    new BitmapDrawable(
+                            mContext.getResources(), icon),maskBitmap,bgBitmap,mContext,
+                    verifyAppNoNeedMask(packageName));
+            //modify by zhaopenglin for mask icon 20160816 end
         }
     }
 
@@ -677,7 +730,12 @@ public class IconCache {
                     if(isDynamCalender && packageName.equals("com.android.calendar")){
                         entry.icon = Utilities.createCalendarIconBitmap(drawable, mContext);
                     }else{
-                        entry.icon = Utilities.createIconBitmap(drawable, mContext);
+                        //modify by zhaopenglin for mask icon 20160816 start
+                        //entry.icon = Utilities.createIconBitmap(drawable, mContext);
+                        entry.icon = Utilities.createIconBitmapWithMask(
+                                drawable, maskBitmap, bgBitmap, mContext,
+                                verifyAppNoNeedMask(packageName));
+                        //modify by zhaopenglin for mask icon 20160816 end
 			        }
                     //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
                     entry.title = appInfo.loadLabel(mPackageManager);

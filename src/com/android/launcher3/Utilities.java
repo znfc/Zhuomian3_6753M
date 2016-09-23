@@ -76,6 +76,11 @@ import android.graphics.Typeface;
 import java.util.Calendar;
 import com.android.launcher3.R;
 //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
+//add by zhaopenglin for mask icon 20160816 start
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Bitmap.Config;
+//add by zhaopenglin for mask icon 20160816 end
 /**
  * Various utilities shared amongst the Launcher's classes.
  */
@@ -186,9 +191,42 @@ public final class Utilities {
         return createIconBitmap(new BitmapDrawable(context.getResources(), icon), context);
     }
 
+    //add by zhaopenglin for mask icon 20160816 start
+    static Bitmap createIconBitmapWithMask(Drawable icon, Bitmap maskIcon, Bitmap bgIcon, Context context,boolean noNeedMask) {
+        Bitmap composeBitmap =  createIconBitmap(icon, context);
+        if(noNeedMask||(maskIcon == null & bgIcon == null)) return composeBitmap;
+        int width = composeBitmap.getWidth();
+        int height = composeBitmap.getHeight();
+
+        //定义期望大小的bitmap
+        Bitmap dstBmp = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+        //定义一个画布
+        Canvas canvas = new Canvas(dstBmp);
+
+        //创建一个取消锯齿画笔
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        if(maskIcon != null) {
+            maskIcon = Bitmap.createScaledBitmap(maskIcon, width, height, false);
+            //将蒙版图片绘制成imageview本身的大小,这样从大小才会和UE标注的一样大
+            canvas.drawBitmap(maskIcon, 0, 0, paint);
+        }
+        //设置两张图片的相交模式
+        //至于这个函数介绍参考网址:http://blog.csdn.net/wm111/article/details/7299294
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT));
+        //在已经绘制的mask上叠加bitmap
+        canvas.drawBitmap(composeBitmap, 0, 0, paint);
+        //设置交互模式 -- 背景框在底层
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+        if(bgIcon != null) {
+            bgIcon = Bitmap.createScaledBitmap(bgIcon, width, height, false);
+            canvas.drawBitmap(bgIcon, 0, 0, paint);
+        }
+        return dstBmp;
+    }
+    //add by zhaopenglin for mask icon 20160816 end
     //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
     static Bitmap createCalendarIconBitmap(Drawable icon, Context context){
-	    String[] weekStrings=context.getResources().getStringArray(R.array.weeks_array);
+        String[] weekStrings=context.getResources().getStringArray(R.array.weeks_array);
         Bitmap calendarIcon = createIconBitmap(icon,context);
         String weekString  = weekStrings[Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-1];
         String dayString  = String.valueOf(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));

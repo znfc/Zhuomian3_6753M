@@ -115,6 +115,7 @@ import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.config.ProviderConfig;
 import com.android.launcher3.model.WidgetsModel;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.LongArrayMap;
@@ -541,8 +542,7 @@ public class Launcher extends Activity
             mUnreadLoader = new MTKUnreadLoader(getApplicationContext());
             // Register unread change broadcast.
             IntentFilter filter = new IntentFilter();
-//            filter.addAction(Intent.ACTION_UNREAD_CHANGED);
-            filter.addAction("com.mediatek.action.UNREAD_CHANGED");
+            filter.addAction(ProviderConfig.ACTION_UNREAD_CHANGED);
             registerReceiver(mUnreadLoader, filter);
             // initialize unread loader
             mUnreadLoader.initialize(this);
