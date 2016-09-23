@@ -36,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -74,7 +75,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     // Modify by zhaopenglin for rect foldericon 20160816(start)
     //private static final int NUM_ITEMS_IN_PREVIEW = 3;
     public static int NUM_ITEMS_IN_PREVIEW;
-    private static final int NUM_COLUMN_IN_PREVIEW = 2;
+    private static final int NUM_COLUMN_IN_PREVIEW = 3;
     // Modify by zhaopenglin for rect foldericon 20160816(end)
 
     private static final int CONSUMPTION_ANIMATION_DURATION = 100;
@@ -92,7 +93,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     private static final float PERSPECTIVE_SHIFT_FACTOR = 0.18f;
 
     // Flag as to whether or not to draw an outer ring. Currently none is designed.
-    public static final boolean HAS_OUTER_RING = true;
+    public static final boolean HAS_OUTER_RING = false;//modify by zhaopenglin 修改这个就是去掉拖动icon到文件时不让最外层的框框显示
 
     // Flag whether the folder should open itself when an item is dragged over is enabled.
     public static final boolean SPRING_LOADING_ENABLED = true;
@@ -147,7 +148,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         //Add by zhaopenglin for rect foldericon 20160816 start
         is_rect_folder=getResources().getBoolean(R.bool.is_rect_folder);
         if(is_rect_folder){
-            NUM_ITEMS_IN_PREVIEW=4;
+            NUM_ITEMS_IN_PREVIEW=9;
         }else{
             NUM_ITEMS_IN_PREVIEW=3;
         }
@@ -251,8 +252,11 @@ public class FolderIcon extends FrameLayout implements FolderListener {
 
                 DeviceProfile grid = launcher.getDeviceProfile();
                 sPreviewSize = grid.folderIconSizePx;
+                Log.i("zhaofolder","sPreviewSize:"+sPreviewSize);
                 sPreviewPadding = res.getDimensionPixelSize(R.dimen.folder_preview_padding);
+
                 sAvailableIconSpace = res.getDimensionPixelSize(R.dimen.folder_available_icon_space);//Add by zhaopenglin for rect foldericon 20160816
+                Log.i("zhaofolder","sAvailableIconSpace:"+sAvailableIconSpace);
                 sSharedOuterRingDrawable = res.getDrawable(R.drawable.portal_ring_outer);
                 sSharedInnerRingDrawable = res.getDrawable(R.drawable.portal_ring_inner_nolip);
                 sSharedFolderLeaveBehind = res.getDrawable(R.drawable.portal_ring_rest);
@@ -605,13 +609,13 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         final int overlayAlpha;
         if(is_rect_folder){
             float mAvailableSpaceInFolderIcon = FolderRingAnimator.sAvailableIconSpace;
-            float itemPadding = 2;
-            float scaledSize = (mAvailableSpaceInFolderIcon- itemPadding*NUM_COLUMN_IN_PREVIEW)/NUM_COLUMN_IN_PREVIEW;
+            float itemPadding = FolderRingAnimator.sPreviewPadding;
+            float scaledSize = (mAvailableSpaceInFolderIcon- itemPadding*(NUM_COLUMN_IN_PREVIEW + 1))/NUM_COLUMN_IN_PREVIEW;
             float scale = scaledSize/mIntrinsicIconSize;
-            float leftMargin = (mAvailableSpaceInPreview-mAvailableSpaceInFolderIcon)/2;
+            float leftMargin = (mAvailableSpaceInPreview-mAvailableSpaceInFolderIcon)/2+itemPadding-2;
             Resources res = getResources();
             int iconTopToFolderHeight = res.getDimensionPixelSize(R.dimen.folder_available_icon_height);
-            float topMarginY = (mAvailableSpaceInPreview-mAvailableSpaceInFolderIcon)/2 + iconTopToFolderHeight;
+            float topMarginY = (mAvailableSpaceInPreview-mAvailableSpaceInFolderIcon)/2 + iconTopToFolderHeight+5;
             int column = index % NUM_COLUMN_IN_PREVIEW;
             int row = index / NUM_COLUMN_IN_PREVIEW;
             transX = leftMargin + scaledSize * column + itemPadding * column + 2;
