@@ -218,12 +218,13 @@ public class DeviceProfile {
         hotseatBarHeightPx = iconSizePx + 4 * edgeMarginPx;
         hotseatCellWidthPx = iconSizePx;
         hotseatCellHeightPx = iconSizePx;
-
         // Folder
         folderCellWidthPx = cellWidthPx + 3 * edgeMarginPx;
         folderCellHeightPx = cellHeightPx + edgeMarginPx  + 30;//add 30 by zhaopenglin for icon in folder 20160316
-        folderBackgroundOffset = -edgeMarginPx;
-        folderIconSizePx = iconSizePx + 2 * -folderBackgroundOffset;
+        //modify by zhaopenglin for folder icon style start
+        //这个修改是让文件夹的那个框框和应用的图标一样大
+        folderBackgroundOffset = 0;// -edgeMarginPx;
+        folderIconSizePx = iconSizePx;// iconSizePx + 2 * -folderBackgroundOffset;
     }
 
     /**

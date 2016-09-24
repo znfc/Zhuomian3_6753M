@@ -618,8 +618,8 @@ public class FolderIcon extends FrameLayout implements FolderListener {
             float topMarginY = (mAvailableSpaceInPreview-mAvailableSpaceInFolderIcon)/2 + iconTopToFolderHeight+5;
             int column = index % NUM_COLUMN_IN_PREVIEW;
             int row = index / NUM_COLUMN_IN_PREVIEW;
-            transX = leftMargin + scaledSize * column + itemPadding * column + 2;
-            transY = topMarginY + scaledSize * row + itemPadding * row -6;
+            transX = leftMargin + (scaledSize + itemPadding) * column + 2;
+            transY = topMarginY + (scaledSize + itemPadding) * row -6;
             totalScale = scale;
             overlayAlpha = 0;
         }else{
