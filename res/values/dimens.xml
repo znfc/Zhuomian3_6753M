@@ -166,4 +166,5 @@
     <dimen name="folder_available_icon_height">6dp</dimen>
 	<dimen name="wallpaper_image_size">180dip</dimen>
 	<!-- add by luoran for keyguard wallpaper end -->
+    <dimen name="preview_h_space">4dp</dimen><!--Add by zhaopenglin for screen edit 20160910 start-->
 </resources>

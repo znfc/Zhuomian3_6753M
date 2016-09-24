@@ -109,5 +109,6 @@
     <bool name="is_support_hideapps">true</bool><!--add by zhaopenglin for hide app DWYQLSSB-77 20160617-->
     <bool name="gmms_unreadSupport">false</bool><!--Add BUG_ID:DWYQDSS-275 zhaopenglin 20160714-->
     <bool name="is_rm_qsb">true</bool><!--Add zhaopenglin for rm Qsb 20160714-->
+    <bool name="has_screenEffect">true</bool><!--Add by zhaopenglin for screen edit 20160910-->
 
 </resources>

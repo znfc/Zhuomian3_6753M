@@ -50,6 +50,7 @@ public class LauncherAppState {
     private final WidgetPreviewLoader mWidgetCache;
 
     private boolean mWallpaperChangedSinceLastCheck;
+    private static boolean mSupportHomeScreenEdit = false;// Add by zhaopenglin for screen edit 20160910
 
     private static WeakReference<LauncherProvider> sLauncherProvider;
     private static Context sContext;
@@ -143,7 +144,7 @@ public class LauncherAppState {
 
         mPowerManager = (PowerManager) sContext.getSystemService(Context.POWER_SERVICE);
         isHideAppsFeature = sContext.getResources().getBoolean(R.bool.is_support_hideapps);//add by zhaopenglin for hide app DWYQLSSB-77 20160617
-
+        mSupportHomeScreenEdit = true;    // Add by zhaopenglin for screen edit 20160910
     }
     //add by zhaopenglin for hide allapp 20160816 start
     public static boolean isHideAllApps() {
@@ -230,7 +231,11 @@ public class LauncherAppState {
     public PowerManager getPowerManager() {
         return mPowerManager;
     }
-
+    // Add by zhaopenglin for screen edit 20160910 start
+    public static boolean isSupportHomeScreenEdit() {
+        return mSupportHomeScreenEdit;
+    }
+    // Add by zhaopenglin for screen edit 20160910 end
     ///M: ALPS02275072, Add this function for refersh InvariantDeviceProfile
     public void RenewInvariantDeviceProfile() {
         mInvariantDeviceProfile = new InvariantDeviceProfile(sContext);
