@@ -54,6 +54,9 @@ import com.android.launcher3.model.PackageItemInfo;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.Thunk;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -253,7 +256,7 @@ public class IconCache {
         long userSerial = mUserManager.getSerialNumberForUser(user);
         mIconDb.getWritableDatabase().delete(IconDB.TABLE_NAME,
                 IconDB.COLUMN_COMPONENT + " LIKE ? AND " + IconDB.COLUMN_USER + " = ?",
-                new String[] {packageName + "/%", Long.toString(userSerial)});
+                new String[]{packageName + "/%", Long.toString(userSerial)});
     }
 
     public void updateDbIcons(Set<String> ignorePackagesForMainUser) {
@@ -558,6 +561,7 @@ public class IconCache {
      * This method is not thread safe, it must be called from a synchronized method.
      */
     boolean isCalenderInfo;//Add BUG_ID:DWYSBM-79 zhaopenglin 20160602
+    Drawable mIcon;
     private CacheEntry cacheLocked(ComponentName componentName, LauncherActivityInfoCompat info,
             UserHandleCompat user, boolean usePackageIcon, boolean useLowResIcon) {
         if (LauncherLog.DEBUG_LAYOUT) {
@@ -580,7 +584,10 @@ public class IconCache {
             // Check the DB first.
             if (isCalenderInfo || !getEntryFromDB(cacheKey, entry, useLowResIcon)) {
                 if (info != null) {
-                    entry.icon = Utilities.createIconBitmap(info.getBadgedIcon(mIconDpi), mContext);
+                    mIcon = getThemeIocn(componentName);
+//                    Log.i("zhaoicon","icon:"+mIcon);
+                    if(mIcon == null) mIcon =info.getBadgedIcon(mIconDpi);
+                    entry.icon = Utilities.createIconBitmap(mIcon, mContext);
                     //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
                     if(isCalenderInfo && isDynamCalender) {
                         entry.icon = Utilities.createCalendarIconBitmap(info.getBadgedIcon(mIconDpi), mContext);
@@ -619,6 +626,60 @@ public class IconCache {
         return entry;
     }
 
+    // add by zhaopenglin for theme start
+
+    private String[] mIconsArray;
+
+    private InputStream getIconsInputStream(InputStream is, String filename, String path, String unit) {
+        try {
+            if (mIconsArray == null) {
+                mIconsArray = mContext.getAssets().list(path);
+            }
+            int index = Arrays.binarySearch(mIconsArray, filename + unit);
+//            Log.i("zhaoicon","index:"+index+",filename:"+filename);
+            if (index >= 0) {
+                is = mContext.getAssets().open(path + "/" + filename + unit);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return is;
+    }
+
+    private Drawable getThemeIocn(ComponentName labelKey) {
+        Drawable icon = null;
+        if (labelKey != null && !TextUtils.isEmpty(labelKey.getPackageName())
+                && !TextUtils.isEmpty(labelKey.getClassName())) {
+//            Log.i("zhaoicon","labelKey.getClassName():"+labelKey.getClassName());
+            InputStream is = null;
+            try {
+                String path = "icon3";
+                String unit = ".png";
+                String filename = labelKey.getClassName().replace("&", ".");
+                is = getIconsInputStream(is, filename, path, unit);
+//                Log.i("zhaoicon","is:"+is);
+                if (is == null) {
+                    filename = labelKey.getPackageName();
+                    is = getIconsInputStream(is, filename, path, unit);
+                }
+                if (is != null) {
+                    icon = Drawable.createFromStream(is, null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return icon;
+    }
+    // add by zhaopenglin for theme end
     /**
      * Adds a default package entry in the cache. This entry is not persisted and will be removed
      * when the cache is flushed.

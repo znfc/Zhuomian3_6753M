@@ -33,6 +33,7 @@ android {
             main.java.srcDirs = ['src', 'WallpaperPicker/src']
             manifest.srcFile 'AndroidManifest.xml'
             proto.srcDirs 'protos/'
+            assets.srcDirs = ['assets']
         }
     }
 }
