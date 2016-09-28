@@ -430,7 +430,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
     protected void onResume() {
         super.onResume();
         /// M: Runtime permission check @ {
-        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (Utilities.ATLEAST_MARSHMALLOW && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
             ((AlphaDisableableButton) mSetWallpaperButton).setClickable(true);
 
@@ -444,7 +444,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
     // called by onCreate; this is subclassed to overwrite WallpaperCropActivity
     protected void init() {
         /// M: Runtime permission check @ {
-        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (Utilities.ATLEAST_MARSHMALLOW && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "requestPermissions");
             if (!mPermRequesting) {

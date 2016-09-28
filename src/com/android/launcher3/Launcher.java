@@ -3193,18 +3193,18 @@ public class Launcher extends Activity
      */
     protected void onClickWallpaperPicker(View v) {
         if (LOGD) Log.d(TAG, "onClickWallpaperPicker");
-		 // Modify by luoran for keyguard wallpaper begin
+         // Modify by luoran for keyguard wallpaper begin
         //if ("0".equals(android.os.SystemProperties.get("ro.rgk_k_wallpaper_support"))) {
-        if (false) {
-        	startActivityForResult(new Intent(Intent.ACTION_SET_WALLPAPER).setPackage(getPackageName()),
+        if (true) {
+            startActivityForResult(new Intent(Intent.ACTION_SET_WALLPAPER).setPackage(getPackageName()),
                 REQUEST_PICK_WALLPAPER);
-			if (mLauncherCallbacks != null) {
+            if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onClickWallpaperPicker(v);
             }
         } else {
-		    startActivity(new Intent(this, WallpaperTypeActivity.class));
+            startActivity(new Intent(this, WallpaperTypeActivity.class));
         }
-    	// Modify by luoran for keyguard wallpaper end
+        // Modify by luoran for keyguard wallpaper end
     }
 
     /**

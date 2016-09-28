@@ -153,7 +153,7 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
             } else {
                 // Otherwise, center the icon
                 int cHeight = getCellContentHeight();
-                int cellPaddingY = (int) Math.max(0, ((lp.height - cHeight) / 6f));//Modify "2f" to "6f" by zhaopenglin 20160316  DSYYWSEMY-64
+                int cellPaddingY = (int) Math.max(0, ((lp.height - cHeight) / 2f));//Modify "2f" to "6f" by zhaopenglin 20160316  DSYYWSEMY-64
                 int cellPaddingX = (int) (grid.edgeMarginPx / 2f);
                 child.setPadding(cellPaddingX, cellPaddingY, cellPaddingX, 0);
             }
