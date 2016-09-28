@@ -54,6 +54,8 @@ import com.android.launcher3.model.PackageItemInfo;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.Thunk;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -161,13 +163,13 @@ public class IconCache {
     //获得mask
     private Bitmap getMaskBitmap() {
         if(maskBitmap == null || maskBitmap.isRecycled()){
-             return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.mask25);
+             return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.mask3);
         }else return null;
     }
     //获得背景框
     private Bitmap getBitmap() {
         if(bgBitmap == null || bgBitmap.isRecycled()){
-            return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.bgicon25_40);
+            return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.bgicon3);
         }else return null;
     }
     private boolean verifyAppNoNeedMask(String pakName){
@@ -290,7 +292,7 @@ public class IconCache {
         long userSerial = mUserManager.getSerialNumberForUser(user);
         mIconDb.getWritableDatabase().delete(IconDB.TABLE_NAME,
                 IconDB.COLUMN_COMPONENT + " LIKE ? AND " + IconDB.COLUMN_USER + " = ?",
-                new String[] {packageName + "/%", Long.toString(userSerial)});
+                new String[]{packageName + "/%", Long.toString(userSerial)});
     }
 
     public void updateDbIcons(Set<String> ignorePackagesForMainUser) {
@@ -600,6 +602,7 @@ public class IconCache {
      * This method is not thread safe, it must be called from a synchronized method.
      */
     boolean isCalenderInfo;//Add BUG_ID:DWYSBM-79 zhaopenglin 20160602
+    Drawable mIcon;
     private CacheEntry cacheLocked(ComponentName componentName, LauncherActivityInfoCompat info,
             UserHandleCompat user, boolean usePackageIcon, boolean useLowResIcon) {
         if (LauncherLog.DEBUG_LAYOUT) {
@@ -622,11 +625,16 @@ public class IconCache {
             // Check the DB first.
             if (isCalenderInfo || !getEntryFromDB(cacheKey, entry, useLowResIcon)) {
                 if (info != null) {
-                    //Modify by zhaopenglin for mask icon 20160816 start
-                    //entry.icon = Utilities.createIconBitmap(info.getBadgedIcon(mIconDpi), mContext);
-                    entry.icon = Utilities.createIconBitmapWithMask(
-                            info.getBadgedIcon(mIconDpi),maskBitmap,bgBitmap,mContext
-                            ,verifyAppNoNeedMask(info.getApplicationInfo().packageName));
+                    mIcon = getThemeIocn(componentName);
+                    if(mIcon == null) {
+                        //Modify by zhaopenglin for mask icon 20160816 start
+                        //entry.icon = Utilities.createIconBitmap(info.getBadgedIcon(mIconDpi), mContext);
+                        entry.icon = Utilities.createIconBitmapWithMask(
+                                info.getBadgedIcon(mIconDpi), maskBitmap, bgBitmap, mContext
+                                , verifyAppNoNeedMask(info.getApplicationInfo().packageName));
+                    } else {
+                        entry.icon = Utilities.createIconBitmap(mIcon, mContext);
+                    }
                     //Modify by zhaopenglin for mask icon 20160816 end
                     //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
                     if(isCalenderInfo && isDynamCalender) {
@@ -666,6 +674,60 @@ public class IconCache {
         return entry;
     }
 
+    // add by zhaopenglin for theme start
+
+    private String[] mIconsArray;
+
+    private InputStream getIconsInputStream(InputStream is, String filename, String path, String unit) {
+        try {
+            if (mIconsArray == null) {
+                mIconsArray = mContext.getAssets().list(path);
+            }
+            int index = Arrays.binarySearch(mIconsArray, filename + unit);
+//            Log.i("zhaoicon","index:"+index+",filename:"+filename);
+            if (index >= 0) {
+                is = mContext.getAssets().open(path + "/" + filename + unit);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return is;
+    }
+
+    private Drawable getThemeIocn(ComponentName labelKey) {
+        Drawable icon = null;
+        if (labelKey != null && !TextUtils.isEmpty(labelKey.getPackageName())
+                && !TextUtils.isEmpty(labelKey.getClassName())) {
+//            Log.i("zhaoicon","labelKey.getClassName():"+labelKey.getClassName());
+            InputStream is = null;
+            try {
+                String path = "icon3";
+                String unit = ".png";
+                String filename = labelKey.getClassName().replace("&", ".");
+                is = getIconsInputStream(is, filename, path, unit);
+//                Log.i("zhaoicon","is:"+is);
+                if (is == null) {
+                    filename = labelKey.getPackageName();
+                    is = getIconsInputStream(is, filename, path, unit);
+                }
+                if (is != null) {
+                    icon = Drawable.createFromStream(is, null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return icon;
+    }
+    // add by zhaopenglin for theme end
     /**
      * Adds a default package entry in the cache. This entry is not persisted and will be removed
      * when the cache is flushed.
@@ -690,7 +752,7 @@ public class IconCache {
             //entry.icon = Utilities.createIconBitmap(icon, mContext);
             entry.icon = Utilities.createIconBitmapWithMask(
                     new BitmapDrawable(
-                            mContext.getResources(), icon),maskBitmap,bgBitmap,mContext,
+                            mContext.getResources(), icon), maskBitmap, bgBitmap, mContext,
                     verifyAppNoNeedMask(packageName));
             //modify by zhaopenglin for mask icon 20160816 end
         }
