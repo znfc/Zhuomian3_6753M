@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="38dip"
         android:gravity="center"
+        android:textColor="@color/icon_text_color"
         android:text=""
         android:singleLine="true"
         android:layout_centerHorizontal="true" />
@@ -19,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="38dip"
         android:gravity="center"
+        android:textColor="@color/icon_text_color"
         android:text="拼音、语音查找应用"
         android:layout_above="@+id/mt9view"
         android:layout_alignParentLeft="true"
