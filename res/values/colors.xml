@@ -58,4 +58,15 @@
     <color name="actionbar_click_color">#18AD85</color>
     <color name="actionbar_background_color">#303030</color>
     <!-- add by luoran for 20150310 end -->
+    <!--t9 start-->
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="icon_text_color">#ffffffff</color>
+    <color name="white_smoke">#FFF5F5F5</color>
+    <color name="black">#FF000000</color>
+
+    <color name="key_text_color">#aa000000</color>
+    <color name="key_text_color1">#44000000</color>
+    <!--t9 end-->
 </resources>

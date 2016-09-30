@@ -26,9 +26,12 @@ import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.util.ComponentKey;
+import com.pinyinsearch.model.PinyinSearchUnit;
+import com.pinyinsearch.util.PinyinUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Represents an app in AllAppsView.
@@ -63,7 +66,7 @@ public class AppInfo extends ItemInfo {
 
     int flags = 0;
 
-    AppInfo() {
+    public AppInfo() { //modify by zhaopenglin for t9
         itemType = LauncherSettings.BaseLauncherColumns.ITEM_TYPE_SHORTCUT;
     }
 
@@ -76,6 +79,18 @@ public class AppInfo extends ItemInfo {
         return title.toString();
     }
 
+//    t9 start
+    public enum SearchByType{
+        SearchByNull,SearchByLabel,
+    }
+
+    private PinyinSearchUnit mLabelPinyinSearchUnit;// save the mLabel converted to Pinyin characters.
+    private SearchByType mSearchByType; // Used to save the type of search
+    private StringBuffer mMatchKeywords;// Used to save the type of Match Keywords.(label)
+    private int mMatchStartIndex;       //the match start  position of mMatchKeywords in original string(label).
+    private int mMatchLength;           //the match length of mMatchKeywords in original string(name or phoneNumber).
+
+//    t9 end
     public String getPackageName() {
         String packageName = "";
         if (intent != null) {
@@ -105,9 +120,17 @@ public class AppInfo extends ItemInfo {
 
         flags = initFlags(info);
         firstInstallTime = info.getFirstInstallTime();
-        iconCache.getTitleAndIcon(this, info, true /* useLowResIcon */);
+        iconCache.getTitleAndIcon(this, info, false /* useLowResIcon */);
         intent = makeLaunchIntent(context, info, user);
         this.user = user;
+//    t9 start
+        setLabelPinyinSearchUnit(new PinyinSearchUnit());
+        setSearchByType(SearchByType.SearchByNull);
+        setMatchKeywords(new StringBuffer());
+        getMatchKeywords().delete(0, getMatchKeywords().length());
+        setMatchStartIndex(-1);
+        setMatchLength(0);
+//    t9 end
     }
 
     public static int initFlags(LauncherActivityInfoCompat info) {
@@ -171,4 +194,58 @@ public class AppInfo extends ItemInfo {
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
             .putExtra(EXTRA_PROFILE, serialNumber);
     }
+//    t9 start
+    public static Comparator<AppInfo> mSearchComparator = new Comparator<AppInfo>() {
+
+        @Override
+        public int compare(AppInfo lhs, AppInfo rhs) {
+            int compareMatchStartIndex=(lhs.mMatchStartIndex-rhs.mMatchStartIndex);
+            int compareMatchLength=rhs.mMatchLength-lhs.mMatchLength;
+
+            return ((0!=compareMatchStartIndex)?(compareMatchStartIndex):((0!=compareMatchLength)?(compareMatchLength):(lhs.getTitle().length()-rhs.getTitle().length())));
+        }
+    };
+
+
+    public PinyinSearchUnit getLabelPinyinSearchUnit() {
+        return mLabelPinyinSearchUnit;
+    }
+
+    public void setLabelPinyinSearchUnit(PinyinSearchUnit labelPinyinSearchUnit) {
+        mLabelPinyinSearchUnit = labelPinyinSearchUnit;
+    }
+
+    public SearchByType getSearchByType() {
+        return mSearchByType;
+    }
+
+    public void setSearchByType(SearchByType searchByType) {
+        mSearchByType = searchByType;
+    }
+
+    public StringBuffer getMatchKeywords() {
+        return mMatchKeywords;
+    }
+
+    public void setMatchKeywords(StringBuffer matchKeywords) {
+        mMatchKeywords = matchKeywords;
+    }
+
+    public void setMatchKeywords(String matchKeywords) {
+        mMatchKeywords.delete(0, mMatchKeywords.length());
+        mMatchKeywords.append(matchKeywords);
+    }
+
+    public void clearMatchKeywords() {
+        mMatchKeywords.delete(0, mMatchKeywords.length());
+    }
+
+    public void setMatchStartIndex(int matchStartIndex) {
+        mMatchStartIndex = matchStartIndex;
+    }
+
+    public void setMatchLength(int matchLength) {
+        mMatchLength = matchLength;
+    }
+//    t9 end
 }
