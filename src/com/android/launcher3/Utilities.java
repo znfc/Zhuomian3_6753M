@@ -206,7 +206,7 @@ public final class Utilities {
         //创建一个取消锯齿画笔
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         if(maskIcon != null) {
-            maskIcon = Bitmap.createScaledBitmap(maskIcon, width, height, false);
+            maskIcon = Bitmap.createScaledBitmap(maskIcon, width, height, true);
             //将蒙版图片绘制成imageview本身的大小,这样从大小才会和UE标注的一样大
             canvas.drawBitmap(maskIcon, 0, 0, paint);
         }
@@ -218,7 +218,7 @@ public final class Utilities {
         //设置交互模式 -- 背景框在底层
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
         if(bgIcon != null) {
-            bgIcon = Bitmap.createScaledBitmap(bgIcon, width, height, false);
+            bgIcon = Bitmap.createScaledBitmap(bgIcon, width, height, true);
             canvas.drawBitmap(bgIcon, 0, 0, paint);
         }
         return dstBmp;

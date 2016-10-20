@@ -163,13 +163,13 @@ public class IconCache {
     //获得mask
     private Bitmap getMaskBitmap() {
         if(maskBitmap == null || maskBitmap.isRecycled()){
-             return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.mask3);
+             return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.mask25);
         }else return null;
     }
     //获得背景框
     private Bitmap getBitmap() {
         if(bgBitmap == null || bgBitmap.isRecycled()){
-            return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.bgicon3);
+            return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.bgicon25_60);
         }else return null;
     }
     private boolean verifyAppNoNeedMask(String pakName){
